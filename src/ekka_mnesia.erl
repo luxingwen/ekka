@@ -35,6 +35,7 @@
 %%--------------------------------------------------------------------
 
 %% @doc Start mnesia database
+%% 启动 mnesia 数据库
 -spec(start() -> ok | {error, term()}).
 start() ->
     ensure_ok(ensure_data_dir()),
@@ -55,11 +56,13 @@ ensure_data_dir() ->
 data_dir() -> mnesia:system_info(directory).
 
 %% @doc Ensure mnesia started
+%% 确保 mnesia启动 
 -spec(ensure_started() -> ok | {error, any()}).
 ensure_started() ->
     ok = mnesia:start(), wait_for(start).
 
 %% @doc Ensure mnesia stopped
+%% 确保 mnesia 停止
 -spec(ensure_stopped() -> ok | {error, any()}).
 ensure_stopped() ->
     stopped = mnesia:stop(), wait_for(stop).
@@ -129,6 +132,7 @@ del_schema_copy(Node) ->
 %%--------------------------------------------------------------------
 
 %% @doc Join the mnesia cluster
+%% 加入mnesia 集群
 -spec(join_cluster(node()) -> ok).
 join_cluster(Node) when Node =/= node() ->
     %% Stop mnesia and delete schema first
@@ -143,6 +147,7 @@ join_cluster(Node) when Node =/= node() ->
     ensure_ok(wait_for(tables)).
 
 %% @doc Cluster status
+%% 集群状态
 -spec(cluster_status() -> list()).
 cluster_status() ->
     Running = mnesia:system_info(running_db_nodes),
@@ -154,6 +159,7 @@ cluster_status() ->
     end.
 
 %% @doc Cluster status of the node
+%% 节点在集群的状态
 -spec(cluster_status(node()) -> running | stopped | false).
 cluster_status(Node) ->
     case is_node_in_cluster(Node) of
@@ -172,6 +178,7 @@ cluster_view() ->
                    || Status <- [running, stopped]]).
 
 %% @doc This node try leave the cluster
+%% 这个节点试着离开 集群
 -spec(leave_cluster() -> ok | {error, any()}).
 leave_cluster() ->
     case running_nodes() -- [node()] of
@@ -202,8 +209,11 @@ leave_cluster(Node) when Node =/= node() ->
     end.
 
 %% @doc Remove node from mnesia cluster.
+%% 从mnesia 中移除Node 节点
 -spec(remove_from_cluster(node()) -> ok | {error, any()}).
 remove_from_cluster(Node) when Node =/= node() ->
+    %% 是否在集群里
+    %% 是否是运行db的节点
     case {is_node_in_cluster(Node), is_running_db_node(Node)} of
         {true, true} ->
             ensure_ok(rpc:call(Node, ?MODULE, ensure_stopped, [])),
@@ -219,10 +229,12 @@ remove_from_cluster(Node) when Node =/= node() ->
     end.
 
 %% @doc Is this node in mnesia cluster?
+%% 这个节点是否在 mnesia 集群里
 is_node_in_cluster() ->
     ekka_mnesia:cluster_nodes(all) =/= [node()].
 
 %% @doc Is the node in mnesia cluster?
+%% Node 节点是否在 mnesia 集群里
 -spec(is_node_in_cluster(node()) -> boolean()).
 is_node_in_cluster(Node) when Node =:= node() ->
     is_node_in_cluster();
@@ -231,6 +243,7 @@ is_node_in_cluster(Node) ->
 
 %% @private
 %% @doc Is running db node.
+%% 是否是运行db的节点
 is_running_db_node(Node) ->
     lists:member(Node, running_nodes()).
 
@@ -244,10 +257,12 @@ connect(Node) ->
     end.
 
 %% @doc Running nodes.
+%% 运行的节点列表
 -spec(running_nodes() -> list(node())).
 running_nodes() -> cluster_nodes(running).
 
 %% @doc Cluster nodes.
+%% 集群节点列表 all 所有的  running 正在运行的 stopped 已经停止的
 -spec(cluster_nodes(all | running | stopped) -> [node()]).
 cluster_nodes(all) ->
     mnesia:system_info(db_nodes);
@@ -269,6 +284,7 @@ ensure_tab({aborted, {already_exists, _Name, _Node}})-> ok;
 ensure_tab({aborted, Error})                         -> Error.
 
 %% @doc Wait for mnesia to start, stop or tables ready.
+%% 等待 mnesia 启动， 停止 或者准备好表
 -spec(wait_for(start | stop | tables) -> ok | {error, Reason :: atom()}).
 wait_for(start) ->
     case mnesia:system_info(is_running) of

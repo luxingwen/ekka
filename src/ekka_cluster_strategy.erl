@@ -12,20 +12,26 @@
 %% See the License for the specific language governing permissions and
 %% limitations under the License.
 
+%% 集群策略  通用行为
 -module(ekka_cluster_strategy).
 
 -ifdef(use_specs).
 
 -type(options() :: list(proplists:property())).
 
+%% 发现
 -callback(discover(options()) -> {ok, list(node())} | {error, term()}).
 
+%% 锁
 -callback(lock(options()) -> ok | ignore | {error, term()}).
 
+%% 解锁
 -callback(unlock(options()) -> ok | ignore | {error, term()}).
 
+%% 注册
 -callback(register(options()) -> ok | ignore | {error, term()}).
 
+%% 移除注册
 -callback(unregister(options()) -> ok | ignore | {error, term()}).
 
 -else.

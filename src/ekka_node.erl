@@ -19,14 +19,18 @@
 
 %% @doc Is node aliving?
 -spec(is_aliving(node()) -> boolean()).
+
+%% 节点是否存活
 is_aliving(Node) ->
     lists:member(Node, nodes()) orelse net_adm:ping(Node) =:= pong.
 
+%% 是否运行APP
 -spec(is_running(atom()) -> boolean()).
 is_running(App) ->
     lists:keymember(App, 1, application:which_applications()).
 
 %% @doc Is the application running?
+%% Node 节点上是否运行 App
 -spec(is_running(node(), atom()) -> boolean()).
 is_running(Node, App) ->
     case rpc:call(Node, application, which_applications, []) of
@@ -35,6 +39,7 @@ is_running(Node, App) ->
     end.
 
 %% @doc Parse node name
+%% 解析节点名称
 -spec(parse_name(string()) -> atom()).
 parse_name(Name) when is_list(Name) ->
     case string:tokens(Name, "@") of

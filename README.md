@@ -1,6 +1,8 @@
 
 # Ekka
 
+本仓库添加一些中文注释，方便源码的阅读
+
 Ekka - Autocluster and Autoheal for EMQ. Ekka helps build a new distribution layer for EMQ R2.3.
 
 ```
